@@ -48,6 +48,10 @@ name = "puzzle6"
 version = "0.1.0"
 
 [[package]]
+name = "puzzle8"
+version = "0.1.0"
+
+[[package]]
 name = "regex"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
