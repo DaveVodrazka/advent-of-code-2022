@@ -8,58 +8,81 @@ fn get_input_content() -> String {
     contents
 }
 
-fn is_visible(grid: &Grid, x: usize, y: usize) -> bool {
+fn is_visible(grid: &Grid, x: usize, y: usize) -> (bool, usize) {
     let row = &grid[y];
-    let col = &grid
-        .iter()
-        .map(|s| s.iter().nth(x).unwrap())
-        .collect::<Vec<_>>();
-    let current_tree = row[x];
-    let row_end = row.len() - 1;
-    let col_end = col.len() - 1;
+    let col: Vec<&usize> = grid.iter().map(|s| s.iter().nth(x).unwrap()).collect();
+    let current_height = row[x];
+    let mut scenic_score_arr: [usize; 4] = [0; 4];
+    let mut definitelly_visible = false;
+    let mut visible = true;
 
     // is left or right edge
-    if x == row_end || x == 0 {
-        return true;
+    if x == (row.len() - 1) || x == 0 {
+        definitelly_visible = true;
     }
     // is top or bottom edge
-    if y == col_end || y == 0 {
-        return true;
+    if y == (col.len() - 1) || y == 0 {
+        definitelly_visible = true;
     }
 
     for i in 0..x {
-        if row[i] >= current_tree {
+        scenic_score_arr[0] += 1;
+        if row[i] >= current_height {
+            visible = false;
             break;
         }
-        // did not break - tree is visible
-        return true;
     }
 
-    for i in (x + 1)..=row_end {
-        if row[i] >= current_tree {
+    if visible {
+        definitelly_visible = true;
+    }
+
+    visible = true;
+
+    for i in x + 1..row.len() {
+        scenic_score_arr[1] += 1;
+        if row[i] >= current_height {
+            visible = false;
             break;
         }
-        // did not break - tree is visible
-        return true;
     }
+
+    if visible {
+        definitelly_visible = true;
+    }
+
+    visible = true;
 
     for i in 0..y {
-        if col[i] >= &current_tree {
+        scenic_score_arr[2] += 1;
+        if col[i] >= &current_height {
+            visible = false;
             break;
         }
-        // did not break - tree is visible
-        return true;
     }
 
-    for i in (y + 1)..=col_end {
-        if col[i] >= &current_tree {
+    if visible {
+        definitelly_visible = true;
+    }
+
+    visible = true;
+
+    for i in y + 1..col.len() {
+        scenic_score_arr[3] += 1;
+        if col[i] >= &current_height {
+            visible = false;
             break;
         }
-        // did not break - tree is visible
-        return true;
     }
 
-    false
+    if visible {
+        definitelly_visible = true;
+    }
+
+    let scenic_score = scenic_score_arr.iter().product();
+    println!("scenic arr {scenic_score_arr:?}, {scenic_score}");
+
+    (definitelly_visible, scenic_score)
 }
 
 fn main() {
@@ -82,14 +105,20 @@ fn main() {
     }
 
     let mut count: u32 = 0;
+    let mut scenic_max: usize = 0;
 
     for (y, line) in grid.iter().enumerate() {
         for (x, _) in line.iter().enumerate() {
-            if is_visible(&grid, x, y) {
+            let (visible, scenic_score) = is_visible(&grid, x, y);
+            if visible {
                 count += 1;
+            }
+            if scenic_score > scenic_max {
+                scenic_max = scenic_score
             }
         }
     }
 
     println!("There are {count} visible trees");
+    println!("Maximum scenic score is {scenic_max}");
 }
