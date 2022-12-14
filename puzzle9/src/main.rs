@@ -65,6 +65,8 @@ fn get_tail_move_direction(head: &Position, tail: &Position) -> Option<String> {
         return None;
     }
 
+    println!("({x_dif}, {y_dif})");
+
     match (x_dif, y_dif) {
         (0, 2) => Some("U".to_string()),
         (0, -2) => Some("D".to_string()),
@@ -78,6 +80,10 @@ fn get_tail_move_direction(head: &Position, tail: &Position) -> Option<String> {
         (2, -1) => Some("DR".to_string()),
         (-2, 1) => Some("UL".to_string()),
         (-2, -1) => Some("DL".to_string()),
+        (2, 2) => Some("UR".to_string()),
+        (-2, 2) => Some("UL".to_string()),
+        (2, -2) => Some("DR".to_string()),
+        (-2, -2) => Some("DL".to_string()),
         _ => panic!("Unexpected combination"),
     }
 }
@@ -85,11 +91,13 @@ fn get_tail_move_direction(head: &Position, tail: &Position) -> Option<String> {
 fn main() {
     let content = get_input_content();
 
-    let mut head = Position { x: 0, y: 0 };
-    let mut tail = Position { x: 0, y: 0 };
-    let mut set = HashSet::new();
-    let copy = tail.clone();
-    set.insert(copy);
+    let mut knots: [Position; 10] = [Position { x: 0, y: 0 }; 10];
+
+    let mut first_knot_moves = HashSet::new();
+    let mut last_knot_moves = HashSet::new();
+
+    first_knot_moves.insert(knots[1].clone());
+    last_knot_moves.insert(knots[9].clone());
 
     for line in content.lines() {
         let mut parts = line.split_whitespace();
@@ -97,20 +105,28 @@ fn main() {
         let num_of_moves: usize = parts.next().unwrap().parse().unwrap();
 
         for _ in 0..num_of_moves {
-            head.move_in_direction(head_direction);
+            // move the head
+            knots[0].move_in_direction(head_direction);
 
-            let tail_move = get_tail_move_direction(&head, &tail);
+            // itterate through all the knots and move them
+            for i in 0..9 {
+                let tail_move = get_tail_move_direction(&knots[i], &knots[i + 1]);
 
-            match tail_move {
-                Some(direction) => tail.move_in_direction(&direction),
-                _ => {}
+                match tail_move {
+                    Some(direction) => knots[i + 1].move_in_direction(&direction),
+                    _ => {}
+                }
             }
 
-            let copy = tail.clone();
-            set.insert(copy);
+            // store the new positions of the first and last knot into sets
+            first_knot_moves.insert(knots[1].clone());
+            last_knot_moves.insert(knots[9].clone());
         }
     }
 
-    let res = set.len();
-    println!("The tail visited {res} different positions");
+    let part_one = first_knot_moves.len();
+    let part_two = last_knot_moves.len();
+
+    println!("The tail visited {part_one} different positions");
+    println!("The last knot visited {part_two} different positions");
 }
