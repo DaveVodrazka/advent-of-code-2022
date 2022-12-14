@@ -10,4 +10,5 @@ members = [
   # "puzzle7" will be added when I know how to make linked lists
   "puzzle8",
   "puzzle9",
+  "puzzle10",
 ]
