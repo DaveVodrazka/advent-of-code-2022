@@ -3,7 +3,7 @@ use std::fs;
 type Grid = Vec<Vec<usize>>;
 
 fn get_input_content() -> String {
-    let file_path = "./puzzle8/test_input.txt";
+    let file_path = "./puzzle8/input.txt";
     let contents = fs::read_to_string(file_path).expect("Failed to read the file");
     contents
 }
@@ -17,15 +17,11 @@ fn is_visible(grid: &Grid, x: usize, y: usize) -> (bool, usize) {
     let mut visible = true;
 
     // is left or right edge
-    if x == (row.len() - 1) || x == 0 {
-        definitelly_visible = true;
-    }
-    // is top or bottom edge
-    if y == (col.len() - 1) || y == 0 {
-        definitelly_visible = true;
+    if x == 0 || y == 0 || x == row.len() - 1 || y == col.len() - 1 {
+        return (true, 0);
     }
 
-    for i in 0..x {
+    for i in (0..x).rev() {
         scenic_score_arr[0] += 1;
         if row[i] >= current_height {
             visible = false;
@@ -53,7 +49,7 @@ fn is_visible(grid: &Grid, x: usize, y: usize) -> (bool, usize) {
 
     visible = true;
 
-    for i in 0..y {
+    for i in (0..y).rev() {
         scenic_score_arr[2] += 1;
         if col[i] >= &current_height {
             visible = false;
@@ -80,7 +76,6 @@ fn is_visible(grid: &Grid, x: usize, y: usize) -> (bool, usize) {
     }
 
     let scenic_score = scenic_score_arr.iter().product();
-    println!("scenic arr {scenic_score_arr:?}, {scenic_score}");
 
     (definitelly_visible, scenic_score)
 }
